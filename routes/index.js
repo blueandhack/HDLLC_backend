@@ -35,6 +35,7 @@ router.get("/currentUser", function (req, res, next) {
   // verify token
   jwt.verify(token, "abc", function (err, decoded) {
     if (err) {
+      console.error(err);
       res.status(401).json({ message: "unauthorized" });
     }
 

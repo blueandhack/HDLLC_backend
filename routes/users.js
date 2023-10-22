@@ -9,15 +9,17 @@ router.get("/", function (req, res, next) {
 });
 
 router.post("/signup", async function (req, res, next) {
-  const { email, password } = req.body;
+  const { email, password, firstName, lastName } = req.body;
 
-  console.log(email, password);
+  const user = new User({ email, password, firstName, lastName });
 
-  const user = new User({ email, password });
-
-  const newUser = await user.save();
-
-  res.json(newUser);
+  try {
+    const newUser = await user.save();
+    res.json(newUser);
+  } catch (err) {
+    console.error(err);
+    res.status(400).json(err);
+  }
 });
 
 module.exports = router;

@@ -9,12 +9,12 @@ const User = mongoose.model("User", {
   },
   password: String,
   updateAt: {
-    type: Date,
-    default: Date.now(),
+    type: Number,
+    default: Date.now,
   },
   createdAt: {
-    type: Date,
-    default: Date.now(),
+    type: Number,
+    default: Date.now,
   },
 });
 

@@ -71,6 +71,17 @@ router.get("/", async (req, res) => {
   }
 });
 
+// get product by id
+router.get("/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const product = await Product.findById(id);
+    return res.send(product);
+  } catch (err) {
+    return res.status(500).send();
+  }
+});
+
 router.put("/:id", async (req, res) => {
   const { id } = req.params;
   const {

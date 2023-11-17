@@ -19,7 +19,18 @@ app.set("view engine", "pug");
 
 app.use(logger("dev"));
 app.use(cors());
-app.use(express.json());
+app.use(
+  express.json({
+    // Because Stripe needs the raw body, we compute it but only when hitting the Stripe callback URL.
+    verify: (req, res, buf) => {
+      const url = req.originalUrl;
+      if (url.startsWith("/webhook")) {
+        req.rawBody = buf.toString();
+      }
+    },
+    limit: "50mb",
+  })
+);
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));

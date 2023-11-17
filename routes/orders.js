@@ -45,6 +45,7 @@ router.post("/create-payment-intent", async (req, res) => {
     items: parseItems,
     status: "pending",
     userId,
+    amount: calculateOrderAmount(items),
   });
 
   const newOrder = await order.save();
@@ -68,6 +69,64 @@ router.post("/create-payment-intent", async (req, res) => {
   res.send({
     clientSecret: paymentIntent.client_secret,
   });
+});
+
+router.get("/", async (req, res) => {
+  let { pageIndex, pageSize, date } = req.query;
+
+  // get current user
+  const token = req.headers.authorization.split(" ")[1];
+
+  let decoded;
+  // verify token
+  try {
+    decoded = jwt.verify(token, "abc");
+  } catch (err) {
+    console.error(err);
+    res.status(401).json({ message: "unauthorized" });
+  }
+
+  const { _id: userId } = decoded;
+
+  if (!userId) {
+    return res.status(401).send();
+  }
+
+  console.log("pageIndex", pageIndex);
+  console.log("pageSize", pageSize);
+  console.log("date", date);
+
+  if (pageIndex === undefined) {
+    pageIndex = 0;
+  }
+  if (pageSize === undefined) {
+    pageSize = 10;
+  }
+  if (date === undefined) {
+    date = Date.now();
+  }
+
+  try {
+    const orders = await Order.find({
+      userId,
+      createdAt: { $lt: date },
+      status: "paid",
+    })
+      .sort({ createdAt: -1 })
+      .skip(pageIndex * pageSize)
+      .limit(pageSize);
+
+    const total = await Order.countDocuments({
+      createdAt: { $lt: date },
+    });
+
+    return res.send({
+      data: orders,
+      total,
+    });
+  } catch (err) {
+    return res.status(500).send();
+  }
 });
 
 module.exports = router;

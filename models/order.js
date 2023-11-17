@@ -13,6 +13,7 @@ const Order = mongoose.model("Order", {
     },
   ],
   status: String,
+  amount: Number,
   updatedAt: {
     type: Number,
     default: Date.now,
